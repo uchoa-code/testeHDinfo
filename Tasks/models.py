@@ -7,3 +7,7 @@ class Task(models.Model):
     description = models.CharField()
     completed = models.BooleanField(default=False)
     createdAt = models.DateTimeField(auto_now_add=True)
+    updatedAt = models.DateTimeField(auto_now=True)
+
+def __str__(self):
+    return self.title
