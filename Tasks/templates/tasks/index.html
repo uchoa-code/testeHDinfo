@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Tarefas</title>
+</head>
+<body>
+  <h1>Lista de Tarefas</h1>
+
+  <form id="form">
+    <input type="text" id="title" placeholder="Título" required>
+    <input type="text" id="description" placeholder="Descrição" required>
+    <button type="submit">Adicionar</button>
+  </form>
+
+  <hr>
+
+  <ul id="taskList"></ul>
+
+  <script>
+    const API_URL = "/api/tasks/";
+
+    async function carregarTarefas() {
+      const resposta = await fetch(API_URL);
+      const tarefas = await resposta.json();
+
+      const lista = document.getElementById("taskList");
+      lista.innerHTML = "";
+
+      tarefas.forEach(tarefa => {
+        const item = document.createElement("li");
+
+        item.innerHTML = `
+          <strong>${tarefa.title}</strong> - ${tarefa.description}
+          ${tarefa.completed ? "✅" : "❌"}
+          <button onclick="alterarStatus('${tarefa.id}', ${tarefa.completed})">
+            ${tarefa.completed ? "Pendente" : "Concluir"}
+          </button>
+          <button onclick="deletarTarefa('${tarefa.id}')">Deletar</button>
+        `;
+
+        lista.appendChild(item);
+      });
+    }
+
+    document.getElementById("form").addEventListener("submit", async function(e) {
+      e.preventDefault();
+
+      const title = document.getElementById("title").value;
+      const description = document.getElementById("description").value;
+
+      await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          title,
+          description,
+          completed: false
+        })
+      });
+
+      this.reset();
+      carregarTarefas();
+    });
+
+    async function alterarStatus(id, completed) {
+      await fetch(`/api/tasks/${id}/completed/`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          completed: !completed
+        })
+      });
+
+      carregarTarefas();
+    }
+
+    async function deletarTarefa(id) {
+      await fetch(`/api/tasks/${id}/`, {
+        method: "DELETE"
+      });
+
+      carregarTarefas();
+    }
+
+    carregarTarefas();
+  </script>
+</body>
+</html>
