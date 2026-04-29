@@ -1,4 +1,4 @@
-const API_URL = "/api/tasks/";
+const API_URL = "https://testehdinfo.onrender.com/api/tasks/";
 let filtroAtual = "todas";
 
 function mostrarMensagem(texto, tipo) {
