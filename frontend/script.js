@@ -147,7 +147,7 @@ document.getElementById("cancelButton").addEventListener("click", limparFormular
 
 async function alterarStatus(id, completed) {
   try {
-    const resposta = await fetch(`/api/tasks/${id}/completed/`, {
+    const resposta = await fetch(`${API_URL}${id}/completed/`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json"
@@ -170,7 +170,7 @@ async function alterarStatus(id, completed) {
 
 async function deletarTarefa(id) {
   try {
-    const resposta = await fetch(`/api/tasks/${id}/`, {
+    const resposta = await fetch(`${API_URL}${id}/`, {
       method: "DELETE"
     });
 
