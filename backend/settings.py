@@ -118,7 +118,7 @@ USE_I18N = True
 USE_TZ = True
 
 CORS_ALLOWED_ORIGINS = [
-    "https://seu-frontend.vercel.app",
+    "https://teste-h-dinfo.vercel.app",
 ]
 
 # Static files (CSS, JavaScript, Images)
