@@ -8,9 +8,13 @@
   <h1>Lista de Tarefas</h1>
 
   <form id="form">
+    <input type="hidden" id="taskId">
+
     <input type="text" id="title" placeholder="Título" required>
     <input type="text" id="description" placeholder="Descrição" required>
-    <button type="submit">Adicionar</button>
+
+    <button type="submit" id="submitButton">Adicionar</button>
+    <button type="button" id="cancelButton" style="display: none;">Cancelar edição</button>
   </form>
 
   <hr>
@@ -33,10 +37,18 @@
         item.innerHTML = `
           <strong>${tarefa.title}</strong> - ${tarefa.description}
           ${tarefa.completed ? "✅" : "❌"}
+
+          <button onclick="prepararEdicao('${tarefa.id}', '${tarefa.title}', '${tarefa.description}')">
+            Editar
+          </button>
+
           <button onclick="alterarStatus('${tarefa.id}', ${tarefa.completed})">
             ${tarefa.completed ? "Pendente" : "Concluir"}
           </button>
-          <button onclick="deletarTarefa('${tarefa.id}')">Deletar</button>
+
+          <button onclick="deletarTarefa('${tarefa.id}')">
+            Deletar
+          </button>
         `;
 
         lista.appendChild(item);
@@ -46,23 +58,59 @@
     document.getElementById("form").addEventListener("submit", async function(e) {
       e.preventDefault();
 
+      const id = document.getElementById("taskId").value;
       const title = document.getElementById("title").value;
       const description = document.getElementById("description").value;
 
-      await fetch(API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          title,
-          description,
-          completed: false
-        })
-      });
+      if (id) {
+        await fetch(`${API_URL}${id}/`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            title,
+            description
+          })
+        });
+      } else {
+        await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            title,
+            description,
+            completed: false
+          })
+        });
+      }
 
-      this.reset();
+      limparFormulario();
       carregarTarefas();
+    });
+
+    function prepararEdicao(id, title, description) {
+      document.getElementById("taskId").value = id;
+      document.getElementById("title").value = title;
+      document.getElementById("description").value = description;
+
+      document.getElementById("submitButton").textContent = "Salvar edição";
+      document.getElementById("cancelButton").style.display = "inline";
+    }
+
+    function limparFormulario() {
+      document.getElementById("taskId").value = "";
+      document.getElementById("title").value = "";
+      document.getElementById("description").value = "";
+
+      document.getElementById("submitButton").textContent = "Adicionar";
+      document.getElementById("cancelButton").style.display = "none";
+    }
+
+    document.getElementById("cancelButton").addEventListener("click", function() {
+      limparFormulario();
     });
 
     async function alterarStatus(id, completed) {
