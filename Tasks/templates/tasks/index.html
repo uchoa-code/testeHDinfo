@@ -2,9 +2,15 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tarefas</title>
+
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'tasks/style.css' %}">
 </head>
 <body>
+
+<div class="container">
   <h1>Lista de Tarefas</h1>
 
   <form id="form">
@@ -13,129 +19,27 @@
     <input type="text" id="title" placeholder="Título" required>
     <input type="text" id="description" placeholder="Descrição" required>
 
-    <button type="submit" id="submitButton">Adicionar</button>
-    <button type="button" id="cancelButton" style="display: none;">Cancelar edição</button>
-  </form>
+    <div class="actions">
+      <button type="submit" id="submitButton" class="primary">
+        Adicionar
+      </button>
 
-  <hr>
+      <button type="button" id="cancelButton" class="secondary" style="display:none;">
+        Cancelar edição
+      </button>
+    </div>
+  </form>
+  <p id="message"></p>
+
+  <div class="filters">
+    <button class="secondary" onclick="filtrarTarefas('todas')">Todas</button>
+    <button class="secondary" onclick="filtrarTarefas('concluidas')">Concluídas</button>
+    <button class="secondary" onclick="filtrarTarefas('pendentes')">Pendentes</button>
+  </div>
 
   <ul id="taskList"></ul>
+</div>
 
-  <script>
-    const API_URL = "/api/tasks/";
-
-    async function carregarTarefas() {
-      const resposta = await fetch(API_URL);
-      const tarefas = await resposta.json();
-
-      const lista = document.getElementById("taskList");
-      lista.innerHTML = "";
-
-      tarefas.forEach(tarefa => {
-        const item = document.createElement("li");
-
-        item.innerHTML = `
-          <strong>${tarefa.title}</strong> - ${tarefa.description}
-          ${tarefa.completed ? "✅" : "❌"}
-
-          <button onclick="prepararEdicao('${tarefa.id}', '${tarefa.title}', '${tarefa.description}')">
-            Editar
-          </button>
-
-          <button onclick="alterarStatus('${tarefa.id}', ${tarefa.completed})">
-            ${tarefa.completed ? "Pendente" : "Concluir"}
-          </button>
-
-          <button onclick="deletarTarefa('${tarefa.id}')">
-            Deletar
-          </button>
-        `;
-
-        lista.appendChild(item);
-      });
-    }
-
-    document.getElementById("form").addEventListener("submit", async function(e) {
-      e.preventDefault();
-
-      const id = document.getElementById("taskId").value;
-      const title = document.getElementById("title").value;
-      const description = document.getElementById("description").value;
-
-      if (id) {
-        await fetch(`${API_URL}${id}/`, {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            title,
-            description
-          })
-        });
-      } else {
-        await fetch(API_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            title,
-            description,
-            completed: false
-          })
-        });
-      }
-
-      limparFormulario();
-      carregarTarefas();
-    });
-
-    function prepararEdicao(id, title, description) {
-      document.getElementById("taskId").value = id;
-      document.getElementById("title").value = title;
-      document.getElementById("description").value = description;
-
-      document.getElementById("submitButton").textContent = "Salvar edição";
-      document.getElementById("cancelButton").style.display = "inline";
-    }
-
-    function limparFormulario() {
-      document.getElementById("taskId").value = "";
-      document.getElementById("title").value = "";
-      document.getElementById("description").value = "";
-
-      document.getElementById("submitButton").textContent = "Adicionar";
-      document.getElementById("cancelButton").style.display = "none";
-    }
-
-    document.getElementById("cancelButton").addEventListener("click", function() {
-      limparFormulario();
-    });
-
-    async function alterarStatus(id, completed) {
-      await fetch(`/api/tasks/${id}/completed/`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          completed: !completed
-        })
-      });
-
-      carregarTarefas();
-    }
-
-    async function deletarTarefa(id) {
-      await fetch(`/api/tasks/${id}/`, {
-        method: "DELETE"
-      });
-
-      carregarTarefas();
-    }
-
-    carregarTarefas();
-  </script>
+<script src="{% static 'tasks/script.js' %}"></script>
 </body>
 </html>
