@@ -3,21 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - Tarefas</title>
+  <title>Cadastro - Tarefas</title>
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
   <div class="container">
-    <h1>Login</h1>
+    <h1>Criar conta</h1>
 
-    <form id="loginForm">
+    <form id="registerForm">
       <input type="text" id="username" placeholder="Usuário" required>
+      <input type="email" id="email" placeholder="E-mail">
       <input type="password" id="password" placeholder="Senha" required>
+      <input type="password" id="passwordConfirm" placeholder="Confirmar senha" required>
 
       <div class="actions">
-        <button type="submit" class="primary">Entrar</button>
-        <a href="./register.html">
-          <button type="button" class="secondary">Criar conta</button>
+        <button type="submit" class="primary">Cadastrar</button>
+        <a href="./login.html">
+          <button type="button" class="secondary">Já tenho conta</button>
         </a>
       </div>
     </form>
@@ -25,6 +27,6 @@
     <p id="message"></p>
   </div>
 
-  <script src="./login.js"></script>
+  <script src="./register.js"></script>
 </body>
 </html>
