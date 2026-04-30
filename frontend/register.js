@@ -5,8 +5,11 @@ function mostrarMensagem(texto, tipo) {
 
   message.textContent = texto;
   message.className = tipo;
+}
 
+function limparMensagemDepois() {
   setTimeout(() => {
+    const message = document.getElementById("message");
     message.textContent = "";
     message.className = "";
   }, 3000);
@@ -19,8 +22,13 @@ document.getElementById("registerForm").addEventListener("submit", async functio
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value.trim();
   const password_confirm = document.getElementById("passwordConfirm").value.trim();
+  const registerButton = document.getElementById("registerButton");
 
   try {
+    registerButton.disabled = true;
+    registerButton.textContent = "Criando usuário...";
+    mostrarMensagem("Criando usuário...", "loading");
+
     const resposta = await fetch(`${API_BASE_URL}/api/register/`, {
       method: "POST",
       headers: {
@@ -53,5 +61,9 @@ document.getElementById("registerForm").addEventListener("submit", async functio
     }, 1000);
   } catch (error) {
     mostrarMensagem(error.message, "error");
+    limparMensagemDepois();
+
+    registerButton.disabled = false;
+    registerButton.textContent = "Cadastrar";
   }
 });

@@ -5,8 +5,11 @@ function mostrarMensagem(texto, tipo) {
 
   message.textContent = texto;
   message.className = tipo;
+}
 
+function limparMensagemDepois() {
   setTimeout(() => {
+    const message = document.getElementById("message");
     message.textContent = "";
     message.className = "";
   }, 3000);
@@ -17,8 +20,13 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
 
   const username = document.getElementById("username").value.trim();
   const password = document.getElementById("password").value.trim();
+  const loginButton = document.getElementById("loginButton");
 
   try {
+    loginButton.disabled = true;
+    loginButton.textContent = "Entrando...";
+    mostrarMensagem("Entrando...", "loading");
+
     const resposta = await fetch(`${API_BASE_URL}/api/token/`, {
       method: "POST",
       headers: {
@@ -36,8 +44,16 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
     localStorage.setItem("accessToken", dados.access);
     localStorage.setItem("refreshToken", dados.refresh);
 
-    window.location.href = "index.html";
+    mostrarMensagem("Login realizado com sucesso!", "success");
+
+    setTimeout(() => {
+      window.location.href = "index.html";
+    }, 1000);
   } catch (error) {
     mostrarMensagem(error.message, "error");
+    limparMensagemDepois();
+
+    loginButton.disabled = false;
+    loginButton.textContent = "Entrar";
   }
 });
