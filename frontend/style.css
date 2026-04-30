@@ -54,6 +54,10 @@ input:focus {
   margin-bottom: 20px;
 }
 
+.exit {
+  margin-bottom: 20px;
+}
+
 button {
   border: none;
   padding: 10px 14px;
