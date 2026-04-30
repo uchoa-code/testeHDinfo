@@ -4,7 +4,14 @@ from .models import Task
 class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = '__all__'
+        fields = [
+            'id',
+            'title',
+            'description',
+            'completed',
+            'createdAt',
+            'updatedAt',
+        ]
 
     def validate_title(self, value):
         if len(value.strip()) < 3:

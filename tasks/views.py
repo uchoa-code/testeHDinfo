@@ -1,26 +1,33 @@
 from django.shortcuts import render
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
 from .models import Task
 from .serializers import TaskSerializer
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework import status, viewsets
+
 
 def index(request):
     return render(request, 'tasks/index.html')
 
 
 class TaskViewSet(viewsets.ModelViewSet):
-    queryset = Task.objects.all()
     serializer_class = TaskSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        queryset = Task.objects.all().order_by('-createdAt')
+        queryset = Task.objects.filter(user=self.request.user).order_by('-createdAt')
         completed = self.request.query_params.get('completed')
 
         if completed is not None:
             queryset = queryset.filter(completed=completed.lower() == 'true')
+
         return queryset
-    
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
     @action(detail=True, methods=['patch'])
     def completed(self, request, pk=None):
         task = self.get_object()

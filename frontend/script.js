@@ -1,5 +1,8 @@
 const API_URL = "https://testehdinfo.onrender.com/api/tasks/";
+const API_BASE_URL = "https://testehdinfo.onrender.com";
+
 let filtroAtual = "todas";
+
 
 function mostrarMensagem(texto, tipo) {
   const message = document.getElementById("message");
@@ -25,7 +28,7 @@ async function carregarTarefas() {
       url += "?completed=false";
     }
 
-    const resposta = await fetch(url);
+    const resposta = await fetchComToken(url);
 
     if (!resposta.ok) {
       throw new Error("Erro ao carregar tarefas.");
@@ -87,7 +90,7 @@ document.getElementById("form").addEventListener("submit", async function(e) {
     let resposta;
 
     if (id) {
-      resposta = await fetch(`${API_URL}${id}/`, {
+      resposta = await fetchComToken(`${API_URL}${id}/`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json"
@@ -95,7 +98,7 @@ document.getElementById("form").addEventListener("submit", async function(e) {
         body: JSON.stringify({ title, description })
       });
     } else {
-      resposta = await fetch(API_URL, {
+      resposta = await fetchComToken(API_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -147,7 +150,7 @@ document.getElementById("cancelButton").addEventListener("click", limparFormular
 
 async function alterarStatus(id, completed) {
   try {
-    const resposta = await fetch(`${API_URL}${id}/completed/`, {
+    const resposta = await fetchComToken(`${API_URL}${id}/completed/`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json"
@@ -170,7 +173,7 @@ async function alterarStatus(id, completed) {
 
 async function deletarTarefa(id) {
   try {
-    const resposta = await fetch(`${API_URL}${id}/`, {
+    const resposta = await fetchComToken(`${API_URL}${id}/`, {
       method: "DELETE"
     });
 
@@ -185,4 +188,43 @@ async function deletarTarefa(id) {
   }
 }
 
+function getAccessToken() {
+  return localStorage.getItem("accessToken");
+}
+
+function logout() {
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("refreshToken");
+  window.location.href = "login.html";
+}
+
+function verificarLogin() {
+  const token = getAccessToken();
+
+  if (!token) {
+    window.location.href = "login.html";
+  }
+}
+
+async function fetchComToken(url, options = {}) {
+  const token = getAccessToken();
+
+  const resposta = await fetch(url, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+      ...options.headers
+    }
+  });
+
+  if (resposta.status === 401) {
+    logout();
+    throw new Error("Sessão expirada. Faça login novamente.");
+  }
+
+  return resposta;
+}
+
+verificarLogin();
 carregarTarefas();
